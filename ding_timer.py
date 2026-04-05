@@ -1,3 +1,19 @@
+#!/usr/bin/env python3
+"""
+ding_timer
+
+A Pomodoro timer utility for the Windows and Linux terminals.
+
+Author: daniel-meek
+Version: v0.0.1-alpha
+Repository: https://github.com/daniel-meek/ding_timer
+License: MIT
+Copyright (c) 2026 daniel-meek
+
+This software is released under the MIT License.
+https://opensource.org/licenses/MIT
+"""
+
 import time
 import os
 import platform
@@ -8,7 +24,7 @@ if platform.system() == "Windows":
     import winsound
 
 def clear_screen():
-    # Mac/Linux ('clear') / Windows ('cls')
+    # Linux ('clear') / Windows ('cls')
     os.system('cls' if os.name == 'nt' else 'clear')
 
 def countdown(t):
@@ -35,9 +51,6 @@ def play_sound(filename):
         if os_name == "Windows":
             # Added SND_ASYNC to play the sound in the background
             winsound.PlaySound(filename, winsound.SND_FILENAME | winsound.SND_ASYNC)
-        elif os_name == "Darwin": # macOS
-            # Popen spawns the process in the background and moves on immediately
-            subprocess.Popen(["afplay", filename], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         elif os_name == "Linux":
             # Popen spawns the process in the background and moves on immediately
             subprocess.Popen(["aplay", filename], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -55,12 +68,12 @@ def main():
             input_values = input("Enter 6 values separated by space, or press Enter for defaults (50 10 0 4 1 0): ")
 
             if not input_values.strip():
-                work_minutes, short_break_minutes, long_break_minutes, num_cycles, num_blocks, wrap_up_minutes = 50, 10, 0, 4, 1, 0
+                work_minutes, short_break_minutes, long_break_minutes, num_sessions, num_blocks, wrap_up_minutes = 50, 10, 0, 4, 1, 0
                 setup = False
             
             else:        
                 try:
-                    work_minutes, short_break_minutes, long_break_minutes, num_cycles, num_blocks, wrap_up_minutes = map(int, input_values.split())
+                    work_minutes, short_break_minutes, long_break_minutes, num_sessions, num_blocks, wrap_up_minutes = map(int, input_values.split())
                     if len(input_values.split(" ")) == 6:
                         setup = False
                     else:
@@ -74,16 +87,16 @@ def main():
         long_break_sound = "long_break.wav"
 
         for block in range(num_blocks):
-            for cycle in range(num_cycles):
+            for session in range(num_sessions):
                 
                 # Work Session
                 clear_screen()
                 print(f"Block {block + 1} of {num_blocks}")
-                print(f"Work session {cycle + 1} of {num_cycles}")
+                print(f"Work session {session + 1} of {num_sessions}")
                 countdown(work_minutes * 60)
                 
                 # Short break
-                if cycle < num_cycles - 1:    
+                if session < num_sessions - 1:    
                     play_sound(short_break_sound)
                     clear_screen()
                     print(f"Block {block + 1} of {num_blocks}")
