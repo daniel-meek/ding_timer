@@ -21,7 +21,7 @@ The 6 values represent:
 - `work`: Minutes per work session
 - `short_break`: Minutes per short break
 - `long_break`: Minutes per long break (occurs between blocks)
-- `cycles`: Number of work sessions per block
+- `sessions`: Number of work sessions per block
 - `blocks`: Total number of blocks in your workday
 - `wrap_up`: Minutes for a final wrap-up session at the very end
 
@@ -66,3 +66,4 @@ Made with ☕ by @daniel-meek
 ## Licence
 
 This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for the full text.
+
