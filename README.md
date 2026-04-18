@@ -60,7 +60,7 @@ Pause the timer by pressing `CTRL+C`, and exit the timer by pressing `CTRL+C` ag
 
 ## Changelog
 
-### v0.0.2-experimental - 2026.04.05
+### v0.0.2-experimental - 2026.04.18
 
 - Added pausing the timer using `CTRL+C`
 - Rebranded from alpha to experimental to better reflect the state of the tool
