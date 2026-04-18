@@ -71,7 +71,7 @@ Pause the timer by pressing `CTRL+C`, and exit the timer by pressing `CTRL+C` ag
 
 ## Author
 
-Made with ☕ by @daniel-meek
+Made with ☕ by [@daniel-meek](https://github.com/daniel-meek)
 
 ## Licence
 

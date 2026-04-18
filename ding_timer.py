@@ -57,7 +57,7 @@ def countdown(t, block_header="", work_header=""):
         except KeyboardInterrupt:
             # First Ctrl+C caught -> PAUSE
             show_cursor()
-            print(f'\r[{bar}] {timeformat} - PAUSED. Press ENTER to resume or Ctrl+C to quit.', end='')
+            print(f'\r[{bar}] {timeformat} - PAUSED\nPress ENTER to resume or Ctrl+C to quit.', end='')
             
             try:
                 wait_for_enter = input() # Wait for the user to press Enter
@@ -66,11 +66,11 @@ def countdown(t, block_header="", work_header=""):
                 if wait_for_enter == "password123":
                     clear_screen()
                     print("That is a really bad password buddy...")
-                    time.sleep(1)
+                    time.sleep(2)
                     print("Like... really really bad... do better...")
-                    time.sleep(1)
+                    time.sleep(2)
                     print("Resuming...")
-                    time.sleep(1)
+                    time.sleep(3)
                 
                 # Resuming! Re-draw the screen to keep the UI clean
                 hide_cursor()
@@ -184,7 +184,6 @@ if __name__ == "__main__":
     
     # Catch exit signals (Ctrl+C)
     except (KeyboardInterrupt, EOFError):
-        show_cursor()
         try:
             print("\n\nTimer stopped manually. See you next time!")
         
