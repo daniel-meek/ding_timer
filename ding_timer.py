@@ -5,7 +5,7 @@ ding_timer
 A Pomodoro timer utility for the Windows and Linux terminals.
 
 Author: daniel-meek
-Version: v0.0.1-alpha
+Version: v0.0.2-experimental (18.04.2026)
 Repository: https://github.com/daniel-meek/ding_timer
 License: MIT
 Copyright (c) 2026 daniel-meek
@@ -27,24 +27,61 @@ def clear_screen():
     # Linux ('clear') / Windows ('cls')
     os.system('cls' if os.name == 'nt' else 'clear')
 
-def countdown(t):
-    total_t = t 
-    while t >= 0:
-        mins, secs = divmod(t, 60)
-        timeformat = '{:02d}:{:02d}'.format(mins, secs)
-        
-        # Calculate progress, avoiding division by zero just in case
-        progress = int(((total_t - t) / total_t) * 50) if total_t > 0 else 50
-        bar = '█' * progress + '-' * (50 - progress)
-        
-        print(f'[{bar}] {timeformat}', end='\r')
-        
-        if t == 0:
-            break
-            
-        time.sleep(1)
-        t -= 1
+def hide_cursor():
+    """Hides the terminal cursor."""
+    print('\033[?25l', end="", flush=True)
 
+def show_cursor():
+    """Restores the terminal cursor."""
+    print('\033[?25h', end="", flush=True)
+
+def countdown(t, block_header="", work_header=""):
+    t = t * 60
+    total_t = t
+    while t >= 0:
+        try:
+            mins, secs = divmod(t, 60)
+            timeformat = '{:02d}:{:02d}'.format(mins, secs)
+            
+            progress = int(((total_t - t) / total_t) * 50) if total_t > 0 else 50
+            bar = '█' * progress + '-' * (50 - progress)
+            
+            print(f'[{bar}] {timeformat}', end='\r')
+            
+            if t == 0:
+                break
+                
+            time.sleep(1)
+            t -= 1
+            
+        except KeyboardInterrupt:
+            # First Ctrl+C caught -> PAUSE
+            show_cursor()
+            print(f'\r[{bar}] {timeformat} - PAUSED. Press ENTER to resume or Ctrl+C to quit.', end='')
+            
+            try:
+                wait_for_enter = input() # Wait for the user to press Enter
+                
+                # Easter egg section >:3
+                if wait_for_enter == "password123":
+                    clear_screen()
+                    print("That is a really bad password buddy...")
+                    time.sleep(1)
+                    print("Like... really really bad... do better...")
+                    time.sleep(1)
+                    print("Resuming...")
+                    time.sleep(1)
+                
+                # Resuming! Re-draw the screen to keep the UI clean
+                hide_cursor()
+                clear_screen()
+                print(block_header)
+                print(work_header)
+                
+            except (KeyboardInterrupt, EOFError): 
+                # Second Ctrl+C or EOF signal caught -> QUIT via the __main__ block
+                raise KeyboardInterrupt from None
+            
 def play_sound(filename):
     os_name = platform.system()
     try:
@@ -59,10 +96,9 @@ def play_sound(filename):
         print('\a', end='\r')
 
 def main():
-    session = True
-    while session:
+    while True:
         clear_screen()
-
+        
         setup = True
         while setup:
             input_values = input("Enter 6 values separated by space, or press Enter for defaults (50 10 0 4 1 0): ")
@@ -86,58 +122,74 @@ def main():
         short_break_sound = "short_break.wav"
         long_break_sound = "long_break.wav"
 
+        hide_cursor()
+
         for block in range(num_blocks):
             for session in range(num_sessions):
                 
                 # Work Session
+                block_header = f"Block {block + 1} of {num_blocks}"
+                work_header = f"Work session {session + 1} of {num_sessions}"
                 clear_screen()
-                print(f"Block {block + 1} of {num_blocks}")
-                print(f"Work session {session + 1} of {num_sessions}")
-                countdown(work_minutes * 60)
+                print(block_header)
+                print(work_header)
+                countdown(work_minutes, block_header, work_header)
                 
                 # Short break
                 if session < num_sessions - 1:    
                     play_sound(short_break_sound)
+                    work_header = "Short break"
                     clear_screen()
-                    print(f"Block {block + 1} of {num_blocks}")
-                    print("Short break")
-                    countdown(short_break_minutes * 60)
+                    print(block_header)
+                    print(work_header)
+                    countdown(short_break_minutes, block_header, work_header)
                     play_sound(short_break_sound)
 
             # Long Break
             if block < num_blocks - 1:
                 play_sound(long_break_sound)
+                work_header = "Long break"
                 clear_screen()
-                print(f"Block {block + 1} of {num_blocks}")
-                print("Long break")
-                countdown(long_break_minutes * 60)
+                print(block_header)
+                print(work_header)
+                countdown(long_break_minutes, block_header, work_header)
                 play_sound(short_break_sound)
         
         # Wrap-up Timer
         if wrap_up_minutes > 0:
             play_sound(long_break_sound)
+            block_header = "Timer Complete"
+            work_header = "Wrap-up"
             clear_screen()
-            print("Timer Complete")
-            print("Wrap-up")
-            countdown(wrap_up_minutes * 60)
-            play_sound(long_break_sound)
-
+            print(block_header)
+            print(work_header)
+            countdown(wrap_up_minutes, block_header, work_header)
+        
         # End of session
+        play_sound(long_break_sound)
         clear_screen()
+        show_cursor()
         print("Timer completed. Good job!\n")
-
-        newSession = True
-        while newSession:
+        
+        while True:
             reply = input("Would you like to start another session? (y/n): ").lower()
             if reply in ["y", "yes"]:
-                newSession = False
+                break
             elif reply in ["n", "no"]:
-                newSession = False
-                session = False
+                return
 
 if __name__ == "__main__":
     try:
         main()
-    except KeyboardInterrupt:
-        print("\n\nTimer stopped manually. See you next time!")
-        os._exit(0)
+    
+    # Catch exit signals (Ctrl+C)
+    except (KeyboardInterrupt, EOFError):
+        show_cursor()
+        try:
+            print("\n\nTimer stopped manually. See you next time!")
+        
+        except Exception:
+            pass
+        
+        finally:
+            os._exit(0)
